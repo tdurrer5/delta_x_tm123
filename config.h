@@ -95,9 +95,9 @@
 
 #define REVERSE_DIRECTION
 
-#define THETA1_ENDSTOP_INVERT false
-#define THETA2_ENDSTOP_INVERT false
-#define THETA3_ENDSTOP_INVERT false
+#define THETA1_ENDSTOP_INVERT true //tdu false
+#define THETA2_ENDSTOP_INVERT true //tdu false
+#define THETA3_ENDSTOP_INVERT true //tdu false
 
 #ifdef ENDSTOP_FOR_CHECK_Z_AREA
 #define ENDSTOP_FOR_CHECK_Z_AREA_INVERT fasle

@@ -23,21 +23,24 @@
 
 #ifdef BOARD_RAMPS_14
 //pin theta
-#define THETA1_PULSE_PIN 11 //PA2 tdu 54
-#define THETA2_PULSE_PIN 8  //PA5 tdu 60
-#define THETA3_PULSE_PIN 13 //PA4 tdu 46
+#define THETA1_PULSE_PIN 39 //tdu 54
+#define THETA2_PULSE_PIN 40 //tdu 60
+#define THETA3_PULSE_PIN 30 //tdu 46
+#define THETA4_PULSE_PIN 15 //tdu 46
 
-#define THETA1_DIRECTION_PIN 10 //PA7 55
-#define THETA2_DIRECTION_PIN 9  //PA6 61
-#define THETA3_DIRECTION_PIN 3  //PB0 48
+#define THETA1_DIRECTION_PIN 32 //55
+#define THETA2_DIRECTION_PIN 33 //61
+#define THETA3_DIRECTION_PIN 34 //48
+#define THETA4_DIRECTION_PIN 35 //48
 
-#define THETA1_ENABLE_PIN 25 //PD2
-#define THETA2_ENABLE_PIN 25 //PD2 56
-#define THETA3_ENABLE_PIN 25 //PD2 62
+#define THETA1_ENABLE_PIN 38
+#define THETA2_ENABLE_PIN 36 //56
+#define THETA3_ENABLE_PIN 37 //62
+#define THETA4_ENABLE_PIN 27 //62
 
-#define THETA1_ENDSTOP_PIN 36 //PC5 3
-#define THETA2_ENDSTOP_PIN 35 //PC6 14
-#define THETA3_ENDSTOP_PIN 37 //PC4 18
+#define THETA1_ENDSTOP_PIN 31 USR_SW1//3
+#define THETA2_ENDSTOP_PIN 31 //14
+#define THETA3_ENDSTOP_PIN 31 //18
 
 #define ENDSTOP_FOR_CHECK_Z_AREA_PIN 18
 
@@ -48,10 +51,10 @@ extern int dummy_IO;
  #define AXIS_4_SERVO_PIN 11
 #else
 #ifdef USING_STEPER_FOR_AXIS4
- #define AXIS_4_PULSE_PIN       12 //PA3 26
- #define AXIS_4_DIRECTION_PIN   4  //PB1 28
- #define AXIS_4_ENABLE_PIN      26 //PD3 24
- #define AXIS_4_ENDSTOP_PIN     38 //PB3 2
+ #define AXIS_4_PULSE_PIN       26
+ #define AXIS_4_DIRECTION_PIN   28
+ #define AXIS_4_ENABLE_PIN      24
+ #define AXIS_4_ENDSTOP_PIN     2
 #endif // USING_STEPER_FOR_AXIS4
 #endif // USING_SERVO_FOR_AXIS4
 
@@ -71,15 +74,14 @@ extern int dummy_IO;
 #define CHANNEL_A_ENCODER_PIN	20
 #define CHANNEL_B_ENCODER_PIN	21
 
-#define VACCUM_PIN      19 //PB2 10
-#define AIRPUFF_PIN     18 //PE0 10
+#define VACCUM_PIN      10
 
 #define CLIP_SERVO_PIN 6
 
 #define SPINDLE_LASER_ENABLE_PIN  10   // Pin should have a pullup/pulldown!
 #define SPINDLE_LASER_PWM_PIN     5   // MUST BE HARDWARE PWM
 
-#define CUSTOM_PWM_PIN	5 //4
+#define CUSTOM_PWM_PIN	4
 #define CUSTOM_DIR_PIN	7   //16
 
 #define LED_R_PIN	30 //25

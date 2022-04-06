@@ -101,14 +101,16 @@ class StepperClass
 
 	 Segment CurrentMoveSegment;
 
-	 bool	IsStoppedMoving;
+	 uint32_t	IsStoppedMoving;
+	 uint32_t   stepper_timeout;
+	 uint32_t   stepper_max_movtime;
 
 	 float Timer;
 	 uint32_t NumberTnterrupt;
 	 uint32_t TotalTnterruptNumber;
 	 uint32_t NumberTnterruptAtMinCycle;
 
-	 uint8_t IsRunningHome;
+	 uint32_t IsRunningHome;
 
 	 float CurrentCycle;
 	 float MaxCycle;

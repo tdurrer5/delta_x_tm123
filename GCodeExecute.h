@@ -54,6 +54,8 @@ public:
 
 	std::vector<String>* GCodeQueue;
 	bool IsRunning;
+	int queue_size; //tdu
+	int Gcode_cnt;  //tdu
 
 	float X, Y, Z, E, S, A, I, J, F, P, R, Q, W;
 private:

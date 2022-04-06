@@ -52,11 +52,15 @@ Point ToolClass::ConvertToPoint(float xPos, float yPos, float zPos)
 
 bool ToolClass::CheckingDesiredPoint(Point point)
 {
-	if (point.Z < Data.RD_W - Data.MOVING_AREA_Z)
+	if (point.Z < Data.RD_W - Data.MOVING_AREA_Z){
+	    Serial.print("Z out of bound");
 		return false;
+	}
 
-	if (sqrt(pow(point.X, 2) + pow(point.Y, 2)) > Data.MOVING_AREA_LARGEST_DIAMETER)
-		return false;
+	if (sqrt(pow(point.X, 2) + pow(point.Y, 2)) > Data.MOVING_AREA_LARGEST_DIAMETER){
+        Serial.print("XY out of bound");
+	    return false;
+	}
 
 	Data.DesiredPoint = point;
 
@@ -65,12 +69,21 @@ bool ToolClass::CheckingDesiredPoint(Point point)
 
 bool ToolClass::CheckingDesiredAngle(Angle angle)
 {
-	if (angle.Theta1 < THETA1_HOME_POSITION)
+	if (angle.Theta1 < THETA1_HOME_POSITION){
+        Serial.print("Th1 out of bound");
+	    return false;
+	}
+	if (angle.Theta2 < THETA2_HOME_POSITION){
+        Serial.print("Th1 out of bound");
 		return false;
-	if (angle.Theta2 < THETA2_HOME_POSITION)
+	}
+	if (angle.Theta3 < THETA3_HOME_POSITION){
+        Serial.print("Th1 out of bound");
 		return false;
-	if (angle.Theta3 < THETA3_HOME_POSITION)
-		return false;
+	}
+//tdu	if((angle.Theta1==std::NAN)|| (angle.Theta2==std::NAN) || (angle.Theta3==std::NAN)){ // not a natural float?
+//	    Serial.print("Joint Angle(s) NaN");
+//	}
 	return true;
 }
 

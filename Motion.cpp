@@ -57,43 +57,108 @@ void MotionClass::G0(float xPos, float yPos, float zPos, float ewPos)
 	Data.IsExecutedGcode = true;
 	Stepper.Running();
 	NumberSegment = 0;
-}
+} //G0
 
 void MotionClass::G1(float xPos, float yPos, float zPos, float ewPos) {
-	Point pointBuffer = Tool.ConvertToPoint(xPos, yPos, zPos);
+    Point pointBuffer = Tool.ConvertToPoint(xPos, yPos, zPos);
 
-	if (Data.End_Effector != USE_PRINTER)
-	{
-		if (ewPos != Data.WPosition)
-		{
-			MultiServo.AddAngle(AXIS_4, ewPos);
-			Data.WPosition = ewPos;
-			MultiServo.Running();
-			Data.IsExecutedGcode = true;
-		}
-	}
+    if (Data.End_Effector != USE_PRINTER)
+    {
+        if (ewPos != Data.WPosition)
+        {
+            MultiServo.AddAngle(AXIS_4, ewPos);
+            Data.WPosition = ewPos;
+            MultiServo.Running();
+            Data.IsExecutedGcode = true;
+        }
+    }
+
+    if (!Tool.CheckingDesiredPoint(pointBuffer) && Data.End_Effector != USE_PRINTER) {
+        return;
+    }
+
+    if (!LinearInterpolation() && Data.End_Effector != USE_PRINTER) {
+        return;
+    }
+
+    if (Data.End_Effector == USE_PRINTER) {
+        float offset = ewPos - Data.ExtrustionPosition;
+
+        static constexpr float abs_bounds{ .01f };
+        if (offset < abs_bounds && offset > -abs_bounds) {
+            offset = 0.f;
+        }
+
+        Planner.AddExtrustionSegment(offset);
+        Data.IsExecutedGcode = true;
+        Data.ExtrustionPosition = ewPos;
+    }
+
+    Data.IsExecutedGcode = true;
+    Stepper.Running();
+    NumberSegment = 0;
+} // G1
+
+void MotionClass::G7(float xPos, float yPos, float zPos) {
+
+    Angle desired_Angle;
+
+    Point cal_point;
+
+    desired_Angle.Theta1 = xPos;
+    desired_Angle.Theta2 = yPos;
+    desired_Angle.Theta3 = zPos;
+
+    if (!Tool.CheckingDesiredAngle(desired_Angle))
+    {
+        //Data.IsExecutedGcode = true;
+        return;
+    }
+
+    DeltaKinematics.ForwardKinematicsCalculations(desired_Angle, cal_point);
+
+    if ( !Tool.CheckingDesiredPoint(cal_point) ) {
+        return;
+    }
+
+    float distance2Point = Tool.CalDistance2Point(Data.CurrentPoint, cal_point);
+
+    Angle comp_angle;
+    DeltaKinematics.InverseKinematicsCalculations(cal_point, comp_angle);
+
+
+//##
+    Point pointBuffer = Tool.ConvertToPoint(xPos, yPos, zPos);
+
 
 	if (!Tool.CheckingDesiredPoint(pointBuffer) && Data.End_Effector != USE_PRINTER) {
 	    return;
 	}
 
+/*##########
+    float distance2Point = Tool.CalDistance2Point(Data.CurrentPoint, Data.DesiredPoint);
+
+    if (distance2Point == 0)
+    {
+        Data.IsExecutedGcode = true;
+        return false;
+    }
+
+    Angle angle_;
+    DeltaKinematics.InverseKinematicsCalculations(Data.DesiredPoint, angle_);
+
+    if (!Tool.CheckingDesiredAngle(angle_))
+    {
+        //Data.IsExecutedGcode = true;
+        return false;
+    }
+
+//##########
 	if (!LinearInterpolation() && Data.End_Effector != USE_PRINTER) {
 	    return;
 	}
 
-	if (Data.End_Effector == USE_PRINTER) {
-		float offset = ewPos - Data.ExtrustionPosition;
-
-		static constexpr float abs_bounds{ .01f };
-		if (offset < abs_bounds && offset > -abs_bounds) {
-			offset = 0.f;
-		}
-
-		Planner.AddExtrustionSegment(offset);
-		Data.IsExecutedGcode = true;
-		Data.ExtrustionPosition = ewPos;
-	}
-
+*/
 	Data.IsExecutedGcode = true;
 	Stepper.Running();
 	NumberSegment = 0;

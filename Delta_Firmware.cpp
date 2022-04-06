@@ -65,7 +65,8 @@ void setup_t() {
 	GcodeExecute.Init(&GCodeQueue);
 
 	Serial.println("Init Success!");
-	Motion.G28();
+	//Motion.G28();
+	Motion.G0(1.2F,0.0F,0.0F,0.0F);
 }
 
 void loop_t() {

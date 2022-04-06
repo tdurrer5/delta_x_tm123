@@ -33,18 +33,29 @@ void GCodeExecuteClass::Init(std::vector<String>* gCodeQueue)
 	this->GCodeQueue = gCodeQueue;
 	ResetValue();
 	IsRunning = false;
+	Gcode_cnt=0;  //tdu
 }
 
 void GCodeExecuteClass::Run()
 {
-	WhenFinishMove();
+	static bool ser_once=false;
+    WhenFinishMove();
 
-	if (GCodeQueue->size() == 0 || IsRunning == true) {
+	queue_size = GCodeQueue->size();
+	if (queue_size == 0 || IsRunning == true) {
+	    if(!ser_once){
+	        SERIAL_PORT.print("still running Q:");
+	        SERIAL_PORT.println(queue_size);
+	        ser_once = true;
+	    }
 		return;
 	}
+	ser_once=false;
 
 	String GcodeInProcessing = GCodeQueue->front();
 	std::vector<KeyValue> keyValues = getKeyValues(GcodeInProcessing);
+
+	Gcode_cnt++;
 
 	for (uint8_t i = 1; i < keyValues.size(); i++)
 	{
@@ -108,7 +119,8 @@ void GCodeExecuteClass::WhenFinishMove()
 		{
 			if (Data.IsExecutedGcode == true)
 			{
-				SERIAL_PORT.println("Ok");	
+				SERIAL_PORT.print("Ok_C");
+                SERIAL_PORT.println(Gcode_cnt);
 			}
 			else
 			{
@@ -118,12 +130,12 @@ void GCodeExecuteClass::WhenFinishMove()
 					{
 						return;
 					}
-					SERIAL_PORT.println("Ok");
+					SERIAL_PORT.println("Ok_T");
 					Tool.IsWait = false;
 				}
 				else
 				{
-					SERIAL_PORT.println("Unknown");
+					SERIAL_PORT.println("Unknown Wait move");
 				}				
 			}
 			ConnectionState.ResetTimeDisconnect();

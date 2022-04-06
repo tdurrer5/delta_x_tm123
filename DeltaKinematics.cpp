@@ -30,52 +30,52 @@ void DeltaKinematicsClass::init()
 
 bool DeltaKinematicsClass::ForwardKinematicsCalculations(Angle angleposition, Point &point)
 {
-	const float theta1 = DEG_TO_RAD * angleposition.Theta1;
-	const float theta2 = DEG_TO_RAD * angleposition.Theta2;
-	const float theta3 = DEG_TO_RAD * angleposition.Theta3;
+    // tdu: unfortunately angleposition is not constant so no const at the declaration! It has to stay in RAM
+    float theta1 = DEG_TO_RAD * angleposition.Theta1;
+    float theta2 = DEG_TO_RAD * angleposition.Theta2;
+    float theta3 = DEG_TO_RAD * angleposition.Theta3;
 
-	const float t = (Data.RD_F - Data.RD_E) * tan30 / 2.0f;
+    float t = (Data.RD_F - Data.RD_E) * tan30 / 2.0;
 
-	const float y1 = -(t + Data.RD_RF * cos(theta1));
-	const float z1 = -Data.RD_RF * sin(theta1);
+    float y1 = -(t + Data.RD_RF * cos(theta1));
+    float z1 = -Data.RD_RF * sin(theta1);
 
-	const float y2 = (t + Data.RD_RF * cos(theta2)) * sin30;
-	const float x2 = y2 * tan60;
-	const float z2 = -Data.RD_RF * sin(theta2);
+    float y2 = (t + Data.RD_RF * cos(theta2))*sin30;
+    float x2 = y2 * tan60;
+    float z2 = -Data.RD_RF * sin(theta2);
 
-	const float y3 = (t + Data.RD_RF * cos(theta3)) * sin30;
-	const float x3 = -y3 * tan60;
-	const float z3 = -Data.RD_RF * sin(theta3);
+    float y3 = (t + Data.RD_RF * cos(theta3))*sin30;
+    float x3 = -y3 * tan60;
+    float z3 = -Data.RD_RF * sin(theta3);
 
-	const float dnm = (y2 - y1) * x3 - (y3 - y1) * x2;
+    float dnm = (y2 - y1)*x3 - (y3 - y1)*x2;
 
-	const float w1 = hypot(y1, z1);
-	const float w2 = hypot(x2, y2) + z2 * z2;
-	const float w3 = hypot(x3, y3) + z3 * z3;
+    float w1 = y1 * y1 + z1 * z1;
+    float w2 = x2 * x2 + y2 * y2 + z2 * z2;
+    float w3 = x3 * x3 + y3 * y3 + z3 * z3;
 
-	// x = (a1*z + b1)/dnm
-	const float a1 = (z2 - z1)*(y3 - y1) - (z3 - z1)*(y2 - y1);
-	const float b1 = -((w2 - w1)*(y3 - y1) - (w3 - w1)*(y2 - y1)) / 2.0f;
+    // x = (a1*z + b1)/dnm
+    float a1 = (z2 - z1)*(y3 - y1) - (z3 - z1)*(y2 - y1);
+    float b1 = -((w2 - w1)*(y3 - y1) - (w3 - w1)*(y2 - y1)) / 2.0;
 
-	// y = (a2*z + b2)/dnm;
-	const float a2 = -(z2 - z1) * x3 + (z3 - z1) * x2;
-	const float b2 = ((w2 - w1) * x3 - (w3 - w1) * x2) / 2.0f;
+    // y = (a2*z + b2)/dnm;
+    float a2 = -(z2 - z1)*x3 + (z3 - z1)*x2;
+    float b2 = ((w2 - w1)*x3 - (w3 - w1)*x2) / 2.0;
 
-	// a*z^2 + b*z + c = 0
-	const float a = hypot(a1, a2) + dnm * dnm;
-	const float b = 2 * (a1*b1 + a2 * (b2 - y1 * dnm) - z1 * dnm*dnm);
-	const float c = hypot(b2 - y1 * dnm, dnm) * (z1*z1 - Data.RD_RE * Data.RD_RE);
+    // a*z^2 + b*z + c = 0
+    float a = a1 * a1 + a2 * a2 + dnm * dnm;
+    float b = 2 * (a1*b1 + a2 * (b2 - y1 * dnm) - z1 * dnm*dnm);
+    float c = (b2 - y1 * dnm)*(b2 - y1 * dnm) + b1 * b1 + dnm * dnm*(z1*z1 - Data.RD_RE * Data.RD_RE);
 
-	const float discriminant = b * b - 4.0f * a * c;
-	if (discriminant < 0) {
-	    return false;
-	}
+    // discriminant
+    float d = b * b - (float)4.0*a*c;
+    if (d < 0) return false;
 
-	point.Z = -0.5f * (b + sqrt(discriminant)) / a;
-	point.X = (a1 * point.Z + b1) / dnm;
-	point.Y = (a2 * point.Z + b2) / dnm;
+    point.Z = -(float)0.5*(b + sqrt(d)) / a;
+    point.X = (a1*point.Z + b1) / dnm;
+    point.Y = (a2*point.Z + b2) / dnm;
 
-	return true;
+    return true;
 }
 
 bool DeltaKinematicsClass::AngleThetaCalculations(float x0, float y0, float z0, float &theta) const
@@ -86,8 +86,12 @@ bool DeltaKinematicsClass::AngleThetaCalculations(float x0, float y0, float z0, 
 	y0 -= _y0_;
 
 	// z = a + b*y
-	float a = (hypot(x0, y0) + z0 * z0 + RD_RF_Pow2 - RD_RE_Pow2 - y1 * y1) / (2.0f * z0);
-	float b = (y1 - y0) / z0;
+//	float a = (hypot(x0, y0) + z0 * z0 + RD_RF_Pow2 - RD_RE_Pow2 - y1 * y1) / (2.0f * z0); //tdu: not working for 3 elements x0,y0,z0
+    float a1 = (x0*x0 + y0 * y0 + z0 * z0 );
+    float a2 = ( RD_RF_Pow2 - RD_RE_Pow2 - y1 * y1);
+    float a = (a1+a2) / (2.0f*z0);
+
+    float b = (y1 - y0) / z0;
 
 	float discriminant = -(a + b * y1)*(a + b * y1) + b*b*RD_RF_Pow2 + RD_RF_Pow2;
 

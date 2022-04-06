@@ -36,11 +36,12 @@
 
 #include "Stepper.h"
 
-#define TurnOnTimer2    TimerEnable(TIMER0_BASE, TIMER_A);  //(TIMSK2 |= (1 << OCIE2A))
-#define TurnOffTimer2   TimerDisable(TIMER0_BASE, TIMER_A); //(TIMSK2 &= ~(1 << OCIE2A))
+#define TurnOnTimer5    TimerEnable(TIMER0_BASE, TIMER_A);  //(TIMSK5 |= (1 << OCIE5A))     // enable to create a stepper pulse
+#define TurnOffTimer5   TimerDisable(TIMER0_BASE, TIMER_A);  //(TIMSK5 &= ~(1 << OCIE5A))
 
-#define TurnOnTimer5    TimerEnable(TIMER1_BASE, TIMER_A);  //(TIMSK5 |= (1 << OCIE5A))
-#define TurnOffTimer5   TimerDisable(TIMER1_BASE, TIMER_A);  //(TIMSK5 &= ~(1 << OCIE5A))
+#define TurnOnTimer2    TimerEnable(TIMER1_BASE, TIMER_A);  //(TIMSK2 |= (1 << OCIE2A))     // time for pulse duration fix 50 us
+#define TurnOffTimer2   TimerDisable(TIMER1_BASE, TIMER_A); //(TIMSK2 &= ~(1 << OCIE2A))
+
 
 
 void Timer0IntHandler(void);
@@ -94,8 +95,10 @@ void StepperClass::init(std::vector<Segment>* SegmentQueue)
     //
     // Configure the two 32-bit periodic timers.
     //
-    TimerConfigure(TIMER0_BASE,  TIMER_CFG_ONE_SHOT);
-    TimerConfigure(TIMER1_BASE, TIMER_CFG_ONE_SHOT);
+//    TimerConfigure(TIMER0_BASE,  TIMER_CFG_ONE_SHOT);
+    TimerConfigure(TIMER0_BASE,  TIMER_CFG_PERIODIC);
+//    TimerConfigure(TIMER1_BASE, TIMER_CFG_ONE_SHOT);
+    TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
 
     TimerLoadSet(TIMER0_BASE, TIMER_A, ROM_SysCtlClockGet()/1000); // initially 1ms
     TimerLoadSet(TIMER1_BASE, TIMER_A, ROM_SysCtlClockGet() / 200000); // 1ms/200  = 5us
@@ -113,6 +116,8 @@ void StepperClass::init(std::vector<Segment>* SegmentQueue)
 
 	IsRunningHome = false;
 	IsStoppedMoving = true;
+
+	stepper_max_movtime = 10000; // hope its ~10 sec?
 
     //
     // Setup the interrupts for the timer timeouts.
@@ -139,7 +144,15 @@ void StepperClass::CreateMotor()
 
 bool StepperClass::GetStateMotor()
 {
-	return IsStoppedMoving;
+	if(!IsStoppedMoving)
+	    stepper_timeout++;
+	if(stepper_timeout > stepper_max_movtime){
+	    stepper_timeout=0;
+	    IsStoppedMoving =1;  // force stepper to stop
+	    SERIAL_PORT.println("Err_Timeout Stepper");
+	}
+	// org code
+    return IsStoppedMoving;
 }
 
 void StepperClass::UpdateMoveSegment()
@@ -173,10 +186,11 @@ void StepperClass::UpdateMoveSegment()
 
 	NumberTnterrupt = 0;
 }
-
+int seg=0;
 void StepperClass::Running()
 {	
-	if (SegmentQueue->size() == 0)
+	seg = SegmentQueue->size();
+    if (SegmentQueue->size() == 0)
 	{
 		return;
 	}
@@ -223,6 +237,9 @@ void StepperClass::Running()
 	TotalTnterruptNumber = 0;
 	IsStoppedMoving = false;
 	TurnOnTimer5; // start next step interval
+
+    rti_counter_i64++; //tdu dummy instruction
+
 }
 
 void StepperClass::Homing()
@@ -259,6 +276,9 @@ void StepperClass::Homing()
 
 	IsStoppedMoving = false;
 	TurnOnTimer5;  //next interval to pulse
+
+    rti_counter_i64++; //tdu dummy instruction
+
 }
 
 void StepperClass::Isr_Execute_Velocity()  // timer5_isr
@@ -336,12 +356,14 @@ void StepperClass::Isr_Execute_Velocity()  // timer5_isr
 
 	TurnOnTimer2;  //make step of 50us
 	
-	if (CurrentMoveSegment.StepperArray[0].StepsToJump == 0 && CurrentMoveSegment.StepperArray[1].StepsToJump == 0 && CurrentMoveSegment.StepperArray[2].StepsToJump == 0)
+	if (CurrentMoveSegment.StepperArray[0].StepsToJump == 0 &&
+	        CurrentMoveSegment.StepperArray[1].StepsToJump == 0 &&
+	        CurrentMoveSegment.StepperArray[2].StepsToJump == 0)
 	//if (NumberTnterrupt >= CurrentMoveSegment.NumberINT - 1)
 	{
 		UpdateMoveSegment();
 	}
-}
+} //Isr_Execute_Velocity()
 
 void StepperClass::Isr_Execute_Movinghome()
 {
@@ -380,12 +402,14 @@ void StepperClass::Isr_Execute_Movinghome()
 	}
 	else if(IsRunningHome == 1 || IsRunningHome == 3)
 	{
-		if (EndStops.HomingCheck() == false)
+		if (EndStops.HomingCheck() == false)  //PC5, PC6, PC4 as input pull up so active LOW
 		{
-			return;
+			return; // homing done!
 		}
 	}
 	Homing();
+    rti_counter_i64++; //tdu dummy instruction
+
 }
 
 //turning pulse pin low
