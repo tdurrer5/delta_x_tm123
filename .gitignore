@@ -2,3 +2,5 @@
 Debug/
 *.zip
 targetConfigs/
+*.bak
+*.log
