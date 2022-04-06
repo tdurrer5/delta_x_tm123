@@ -51,6 +51,7 @@ void Constants::init()
 	IsExecutedGcode = false;
 
 	End_Effector = USE_VACUUM;
+//tdu    End_Effector = USE_PRINTER;
 
 	MMPerLinearSegment = (float)MM_PER_LINEAR_SEGMENT;
 

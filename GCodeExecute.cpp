@@ -215,6 +215,16 @@ void GCodeExecuteClass::checkAndRunFunction(KeyValue keyValue)
 			Motion.G6(X, Y, Z, P);
 			if (S >= 0 && S <= 255) Control.M03(S);
 			break;
+		case 7:
+			if (F != NULL_NUMBER) Planner.SetVelocity(F);
+			if (X == NULL_NUMBER) X = Data.CurrentPoint.X;
+			if (Y == NULL_NUMBER) Y = Data.CurrentPoint.Y;
+			if (Z == NULL_NUMBER) Z = Data.CurrentPoint.Z;
+			if (W == NULL_NUMBER) W = Data.WPosition;
+			if (P == NULL_NUMBER) break;
+			Motion.G6(X, Y, Z, P);
+			if (S >= 0 && S <= 255) Control.M03(S);
+			break;
 		case 28:
 			Motion.G28();
 			break;

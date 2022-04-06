@@ -100,7 +100,7 @@ void StepperClass::init(std::vector<Segment>* SegmentQueue)
 //    TimerConfigure(TIMER1_BASE, TIMER_CFG_ONE_SHOT);
     TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
 
-    TimerLoadSet(TIMER0_BASE, TIMER_A, ROM_SysCtlClockGet()/1000); // initially 1ms
+    TimerLoadSet(TIMER0_BASE, TIMER_A, ROM_SysCtlClockGet() /  1000); // initially 1ms
     TimerLoadSet(TIMER1_BASE, TIMER_A, ROM_SysCtlClockGet() / 200000); // 1ms/200  = 5us
 
     TimerIntRegister(TIMER0_BASE, INT_TIMER0A, Timer0IntHandler);

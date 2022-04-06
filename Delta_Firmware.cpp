@@ -66,7 +66,7 @@ void setup_t() {
 
 	Serial.println("Init Success!");
 	//Motion.G28();
-	Motion.G0(1.2F,0.0F,0.0F,0.0F);
+	Motion.G0(1.2F,Data.CurrentPoint.Y,Data.CurrentPoint.Z,0.0F); // Z <> 0.0 ! otherwise singularity in IK
 }
 
 void loop_t() {

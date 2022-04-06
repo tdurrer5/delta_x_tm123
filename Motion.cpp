@@ -30,7 +30,7 @@ void MotionClass::init()
 	homeAngle.Theta2 = THETA2_HOME_POSITION;
 	homeAngle.Theta3 = THETA3_HOME_POSITION;
 	DeltaKinematics.ForwardKinematicsCalculations(homeAngle, Data.HomePosition);
-	//SetHomePosition();
+	SetHomePosition();  //tdu initialize Data.Current_point.x,y,z
 }
 
 void MotionClass::G0(float xPos, float yPos, float zPos, float ewPos)
@@ -99,70 +99,7 @@ void MotionClass::G1(float xPos, float yPos, float zPos, float ewPos) {
     NumberSegment = 0;
 } // G1
 
-void MotionClass::G7(float xPos, float yPos, float zPos) {
 
-    Angle desired_Angle;
-
-    Point cal_point;
-
-    desired_Angle.Theta1 = xPos;
-    desired_Angle.Theta2 = yPos;
-    desired_Angle.Theta3 = zPos;
-
-    if (!Tool.CheckingDesiredAngle(desired_Angle))
-    {
-        //Data.IsExecutedGcode = true;
-        return;
-    }
-
-    DeltaKinematics.ForwardKinematicsCalculations(desired_Angle, cal_point);
-
-    if ( !Tool.CheckingDesiredPoint(cal_point) ) {
-        return;
-    }
-
-    float distance2Point = Tool.CalDistance2Point(Data.CurrentPoint, cal_point);
-
-    Angle comp_angle;
-    DeltaKinematics.InverseKinematicsCalculations(cal_point, comp_angle);
-
-
-//##
-    Point pointBuffer = Tool.ConvertToPoint(xPos, yPos, zPos);
-
-
-	if (!Tool.CheckingDesiredPoint(pointBuffer) && Data.End_Effector != USE_PRINTER) {
-	    return;
-	}
-
-/*##########
-    float distance2Point = Tool.CalDistance2Point(Data.CurrentPoint, Data.DesiredPoint);
-
-    if (distance2Point == 0)
-    {
-        Data.IsExecutedGcode = true;
-        return false;
-    }
-
-    Angle angle_;
-    DeltaKinematics.InverseKinematicsCalculations(Data.DesiredPoint, angle_);
-
-    if (!Tool.CheckingDesiredAngle(angle_))
-    {
-        //Data.IsExecutedGcode = true;
-        return false;
-    }
-
-//##########
-	if (!LinearInterpolation() && Data.End_Effector != USE_PRINTER) {
-	    return;
-	}
-
-*/
-	Data.IsExecutedGcode = true;
-	Stepper.Running();
-	NumberSegment = 0;
-}
 
 void MotionClass::G2(float i, float j, float xPos, float yPos, float wPos) {
 	Point pointBuffer = Tool.ConvertToPoint(xPos, yPos, Data.CurrentPoint.Z);
@@ -263,7 +200,72 @@ void MotionClass::G6(float angle1, float angle2, float angle3, float distance) {
 	Data.CurrentAngle = nextAngle;
 
 	Stepper.Running();
-}
+} //G6
+
+void MotionClass::G7(float xPos, float yPos, float zPos) {
+
+    Angle desired_Angle;
+
+    Point cal_point;
+
+    desired_Angle.Theta1 = xPos;
+    desired_Angle.Theta2 = yPos;
+    desired_Angle.Theta3 = zPos;
+
+    if (!Tool.CheckingDesiredAngle(desired_Angle))
+    {
+        //Data.IsExecutedGcode = true;
+        return;
+    }
+
+    DeltaKinematics.ForwardKinematicsCalculations(desired_Angle, cal_point);
+
+    if ( !Tool.CheckingDesiredPoint(cal_point) ) {
+        return;
+    }
+
+    float distance2Point = Tool.CalDistance2Point(Data.CurrentPoint, cal_point);
+
+    Angle comp_angle;
+    DeltaKinematics.InverseKinematicsCalculations(cal_point, comp_angle);
+
+
+//##
+    Point pointBuffer = Tool.ConvertToPoint(xPos, yPos, zPos);
+
+
+    if (!Tool.CheckingDesiredPoint(pointBuffer) && Data.End_Effector != USE_PRINTER) {
+        return;
+    }
+
+/*##########
+    float distance2Point = Tool.CalDistance2Point(Data.CurrentPoint, Data.DesiredPoint);
+
+    if (distance2Point == 0)
+    {
+        Data.IsExecutedGcode = true;
+        return false;
+    }
+
+    Angle angle_;
+    DeltaKinematics.InverseKinematicsCalculations(Data.DesiredPoint, angle_);
+
+    if (!Tool.CheckingDesiredAngle(angle_))
+    {
+        //Data.IsExecutedGcode = true;
+        return false;
+    }
+
+//##########
+    if (!LinearInterpolation() && Data.End_Effector != USE_PRINTER) {
+        return;
+    }
+
+*/
+    Data.IsExecutedGcode = true;
+    Stepper.Running();
+    NumberSegment = 0;
+} //G7
 
 void MotionClass::G28() {
     static constexpr uint8_t angle{ 85 };
@@ -300,9 +302,10 @@ bool MotionClass::LinearInterpolation()
 	
 	NumberSegment = floorf(distance2Point / Data.MMPerLinearSegment);
 
-	if (NumberSegment < 1)
+	if (NumberSegment < 1){
 		NumberSegment = 1;
-
+		Serial.print("Err calc, no motion segment");
+	}
 	Angle lastAngle = Data.CurrentAngle;
 	Angle currentAngle;
 

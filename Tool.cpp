@@ -74,11 +74,11 @@ bool ToolClass::CheckingDesiredAngle(Angle angle)
 	    return false;
 	}
 	if (angle.Theta2 < THETA2_HOME_POSITION){
-        Serial.print("Th1 out of bound");
+        Serial.print("Th2 out of bound");
 		return false;
 	}
 	if (angle.Theta3 < THETA3_HOME_POSITION){
-        Serial.print("Th1 out of bound");
+        Serial.print("Th3 out of bound");
 		return false;
 	}
 //tdu	if((angle.Theta1==std::NAN)|| (angle.Theta2==std::NAN) || (angle.Theta3==std::NAN)){ // not a natural float?
