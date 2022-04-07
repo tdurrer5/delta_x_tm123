@@ -109,6 +109,9 @@ void StepperClass::init(std::vector<Segment>* SegmentQueue)
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
+    TurnOffTimer5
+    TurnOffTimer2
+
 	//interrupts();
     IntMasterEnable();
 
