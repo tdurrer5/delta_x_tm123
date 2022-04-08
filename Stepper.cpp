@@ -120,7 +120,9 @@ void StepperClass::init(std::vector<Segment>* SegmentQueue)
 	IsRunningHome = false;
 	IsStoppedMoving = true;
 
-	stepper_max_movtime = 10000; // hope its ~10 sec?
+	// tdu
+	stepper_max_movtime = 100000; // hope its ~10 sec?
+	home_bypass = false;
 
     //
     // Setup the interrupts for the timer timeouts.
@@ -149,6 +151,8 @@ bool StepperClass::GetStateMotor()
 {
 	if(!IsStoppedMoving)
 	    stepper_timeout++;
+	else
+	    stepper_timeout=0;
 	if(stepper_timeout > stepper_max_movtime){
 	    stepper_timeout=0;
 	    IsStoppedMoving =1;  // force stepper to stop
@@ -407,7 +411,10 @@ void StepperClass::Isr_Execute_Movinghome()
 	{
 		if (EndStops.HomingCheck() == false)  //PC5, PC6, PC4 as input pull up so active LOW
 		{
-			return; // homing done!
+		    if(home_bypass){
+		        TurnOffTimer5   //tdu trial
+		    }
+		    return; // homing done!
 		}
 	}
 	Homing();

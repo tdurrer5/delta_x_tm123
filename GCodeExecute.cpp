@@ -43,9 +43,9 @@ void GCodeExecuteClass::Run()
 
 	queue_size = GCodeQueue->size();
 	if (queue_size == 0 || IsRunning == true) {
-	    if(!ser_once){
-	        SERIAL_PORT.print("still running Q:");
-	        SERIAL_PORT.println(queue_size);
+	    if(!ser_once && IsRunning){
+	       // SERIAL_PORT.print("still running ");
+	       // SERIAL_PORT.println(queue_size);
 	        ser_once = true;
 	    }
 		return;

@@ -111,6 +111,7 @@ class StepperClass
 	 uint32_t NumberTnterruptAtMinCycle;
 
 	 uint32_t IsRunningHome;
+	 uint32_t home_bypass;
 
 	 float CurrentCycle;
 	 float MaxCycle;
