@@ -28,6 +28,7 @@
 //#include "tdu/math_tdu.h"
 #include "deltax_vector.h"
 #include "GCodeReceiver.h"
+#include "GCodeLooping.h"
 #include "GCodeExecute.h"
 #include "Planner.h"
 #include "Motion.h"
@@ -42,14 +43,19 @@ using namespace std;
 
 GCodeReceiverClass GcodeReceiver;
 GCodeExecuteClass GcodeExecute;
+GCodeLoopingClass GCodeLooping;
 
 vector<String> GCodeQueue;
 vector<Segment> SegmentQueue;
+
+char cLoopingGCode[100]= "G1 Z-205.0\n G1 Z201.0 U\n"; // Z down up down up ..cont.
+int looping_go;
 
 void setup_t() {
 	SERIAL_PORT.begin(BAUDRATE);
 	Data.init();
 	Storage.init();
+	looping_go=false;   // default no looping GCode
 
 	DeltaKinematics.init();
 	EndEffector.init();
@@ -62,15 +68,17 @@ void setup_t() {
 	Temperature.init();
 
 	GcodeReceiver.Init(&GCodeQueue, &SERIAL_PORT, BAUDRATE);
+	GCodeLooping.Init(&GCodeQueue,&looping_go,cLoopingGCode);
 	GcodeExecute.Init(&GCodeQueue);
 
 	Serial.println("Init Success!");
 	//Motion.G28();
-	Motion.G0(1.2F,Data.CurrentPoint.Y,Data.CurrentPoint.Z,0.0F); // Z <> 0.0 ! otherwise singularity in IK
+	//Motion.G0(1.2F,Data.CurrentPoint.Y,Data.CurrentPoint.Z,0.0F); // Z <> 0.0 ! otherwise singularity in IK
 }
 
 void loop_t() {
 	GcodeReceiver.Execute();
+	GCodeLooping.Execute();  // run the PnP static GCode routine
 	GcodeExecute.Run();
 	ConnectionState.Execute();
 	Temperature.ISR_EXECUTE();

@@ -100,6 +100,9 @@ void GCodeExecuteClass::Run()
 		case 'W':
 			W = keyValues[i].Value;
 			break;
+        case 'U':
+            //synch end of looping Gcode
+            break;
 		default:
 			break;
 		}
