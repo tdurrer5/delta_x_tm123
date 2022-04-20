@@ -48,14 +48,13 @@ GCodeLoopingClass GCodeLooping;
 vector<String> GCodeQueue;
 vector<Segment> SegmentQueue;
 
-char cLoopingGCode[100]= "G1 Z-205.0\n G1 Z201.0 U\n"; // Z down up down up ..cont.
-int looping_go;
+char cLoopingGCode[100]= "G1 Z-215.0\nG1 Z301.0\nG4 P1000 U\n"; // Z down up down up ..cont.
 
 void setup_t() {
 	SERIAL_PORT.begin(BAUDRATE);
 	Data.init();
 	Storage.init();
-	looping_go=false;   // default no looping GCode
+	Data.looping_go=false;   // default no looping GCode
 
 	DeltaKinematics.init();
 	EndEffector.init();
@@ -68,7 +67,7 @@ void setup_t() {
 	Temperature.init();
 
 	GcodeReceiver.Init(&GCodeQueue, &SERIAL_PORT, BAUDRATE);
-	GCodeLooping.Init(&GCodeQueue,&looping_go,cLoopingGCode);
+	GCodeLooping.Init(&GCodeQueue,0x00,cLoopingGCode);
 	GcodeExecute.Init(&GCodeQueue);
 
 	Serial.println("Init Success!");

@@ -42,6 +42,8 @@
 class ControlClass {
  public:
 	void init() { /* nothing */ }
+	void G55(bool P); //Switch on Loop exec
+	void G56(bool P); //Switch on auto pos broadcast "pos:"+x+","+y+","+z
 	void G90();//Absolute Positioning
 	void G91();//Relative Positioning
 	void G93();//Get Position

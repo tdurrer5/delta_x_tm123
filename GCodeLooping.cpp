@@ -34,7 +34,7 @@ void GCodeLoopingClass::Init(std::vector<String>* gCodeQueue, int *pEnab_exec, c
 	rd_inx_str = 0;
 	process_oneLoop=false;
 
-	this->pEnable_exec = pEnab_exec;
+//	this->pEnable_exec = pEnab_exec;
 	this->pch_gcodeloop = pch_gcodebuff;
 
 	this->GCodeQueue = gCodeQueue;
@@ -43,9 +43,12 @@ void GCodeLoopingClass::Init(std::vector<String>* gCodeQueue, int *pEnab_exec, c
 void GCodeLoopingClass::Execute()
 {
     if(GCodeQueue->empty()){
-        if(*pEnable_exec&& (Stepper.GetStateMotor()==true) ){
+        if(Data.looping_go && (Stepper.GetStateMotor()==true) ){
             process_oneLoop=true;  // start over after Motion() finished all steps
         }
+    }else{
+        static int idle;
+        idle++;
     }
     while (process_oneLoop)  // reference to global in, could be modified by special Gxy-Gcode TBD
 	{
@@ -56,8 +59,8 @@ void GCodeLoopingClass::Execute()
 
 		if (inChar == '\n')
 		{
-		    Serial.print("loop:");  // just some debug ret msg
-		    Serial.println(receiveString);
+		    Serial.print(".");  // just some debug ret msg
+		    //Serial.println(receiveString);
 
 		    if(lastChar=='U'){
 		        rd_inx_str=0;   // rewind in the static Gcode char[]
@@ -115,10 +118,14 @@ void GCodeLoopingClass::Execute()
 			WifiSettings.Save();
 			Serial.println("Ok");	
 		}
-		else if (receiveString == "SAVEIP") WifiSettings.SaveIP();
-		else if (receiveString == "IP") WifiSettings.IP();
-		else if (receiveString == "gSsid") WifiSettings.GetSsid();
-		else if (receiveString == "gPswd") WifiSettings.GetPswd();
+		else if (receiveString == "SAVEIP")
+		    WifiSettings.SaveIP();
+		else if (receiveString == "IP")
+		    WifiSettings.IP();
+		else if (receiveString == "gSsid")
+		    WifiSettings.GetSsid();
+		else if (receiveString == "gPswd")
+		    WifiSettings.GetPswd();
 		else if (receiveString == "Temp")
 		{
 			Temperature.GetTemperature();

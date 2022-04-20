@@ -38,19 +38,13 @@ void GCodeExecuteClass::Init(std::vector<String>* gCodeQueue)
 
 void GCodeExecuteClass::Run()
 {
-	static bool ser_once=false;
     WhenFinishMove();
 
+//    if (GCodeQueue->size() == 0 || IsRunning == true)
 	queue_size = GCodeQueue->size();
 	if (queue_size == 0 || IsRunning == true) {
-	    if(!ser_once && IsRunning){
-	       // SERIAL_PORT.print("still running ");
-	       // SERIAL_PORT.println(queue_size);
-	        ser_once = true;
-	    }
 		return;
 	}
-	ser_once=false;
 
 	String GcodeInProcessing = GCodeQueue->front();
 	std::vector<KeyValue> keyValues = getKeyValues(GcodeInProcessing);
@@ -101,7 +95,8 @@ void GCodeExecuteClass::Run()
 			W = keyValues[i].Value;
 			break;
         case 'U':
-            //synch end of looping Gcode
+            // synch end of looping Gcode
+            // used in GCodeLoopingClass::Execute()
             break;
 		default:
 			break;
@@ -230,6 +225,14 @@ void GCodeExecuteClass::checkAndRunFunction(KeyValue keyValue)
 			break;
 		case 28:
 			Motion.G28();
+			break;
+		case 55:
+		    if (P == NULL_NUMBER) break;
+			Control.G55(P);
+			break;
+		case 56:
+		    if (P == NULL_NUMBER) break;
+			Control.G56(P);
 			break;
 		case 90:
 			Control.G90();

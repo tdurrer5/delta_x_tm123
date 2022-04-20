@@ -20,6 +20,24 @@
 
 #include "Control.h"
 
+void ControlClass::G55(bool P)
+{
+	Data.looping_go = P;
+
+	Serial.print("Looping GCode is set to:");
+	Serial.println(Data.looping_go);
+	Data.IsExecutedGcode = true;
+
+}
+void ControlClass::G56(bool P) //Switch on auto pos broadcast "pos:"+x+","+y+","+z
+{
+    Data.bcast_pos = P;
+
+    Serial.print("auto pos broadcast is:");
+    Serial.println(Data.bcast_pos);
+    Data.IsExecutedGcode = true;
+
+}
 void ControlClass::G90()
 {
 	Data.IsMoveWithTheAbsoluteCoordinates = true;

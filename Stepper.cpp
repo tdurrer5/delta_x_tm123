@@ -156,7 +156,10 @@ bool StepperClass::GetStateMotor()
 	if(stepper_timeout > stepper_max_movtime){
 	    stepper_timeout=0;
 	    IsStoppedMoving =1;  // force stepper to stop
-	    SERIAL_PORT.println("Err_Timeout Stepper");
+	    SERIAL_PORT.print("Err_Timeout Stepper");
+	    SERIAL_PORT.print(ThetaStepMotor[0].NumberInterrupt2Step);SERIAL_PORT.print(",");
+        SERIAL_PORT.print(ThetaStepMotor[1].NumberInterrupt2Step);SERIAL_PORT.print(",");
+        SERIAL_PORT.println(ThetaStepMotor[2].NumberInterrupt2Step);
 	}
 	// org code
     return IsStoppedMoving;

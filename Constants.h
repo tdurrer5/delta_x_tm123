@@ -72,6 +72,10 @@ public:
 
 	bool IsExecutedGcode;
 
+	bool looping_go; //tdu
+
+	bool bcast_pos;  //tdu
+
 	END_EFFECTOR End_Effector;
 
 	float MMPerLinearSegment;

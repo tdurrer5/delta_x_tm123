@@ -304,7 +304,7 @@ bool MotionClass::LinearInterpolation()
 
 	if (NumberSegment < 1){
 		NumberSegment = 1;
-		Serial.println("Err calc, no motion segment");
+		//Serial.println("Err calc, no motion segment");
 	}
 	Angle lastAngle = Data.CurrentAngle;
 	Angle currentAngle;
@@ -323,6 +323,15 @@ bool MotionClass::LinearInterpolation()
 
 	Data.CurrentPoint = Data.DesiredPoint;
 	Data.CurrentAngle = currentAngle;
+
+	if (Data.bcast_pos)
+    {
+        Serial.print(Data.CurrentPoint.X);
+        Serial.print(",");
+        Serial.print(Data.CurrentPoint.Y);
+        Serial.print(",");
+        Serial.println(Data.CurrentPoint.Z);
+    }
 
 	return true;
 }
